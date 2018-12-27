@@ -1,0 +1,203 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Modern::Perl '2018';
+
+use FindBin;
+BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
+
+use Date::Parse;
+use Getopt::Long;
+use Pod::Usage;
+use Term::ANSIColor;
+
+use Linux::Iwd;
+
+sub print_header {
+    my ( $color, $stringf ) = @_;
+
+    print color($color);
+    printf "%s\n", $stringf;
+    printf "%s\n", "-" x 79;
+    print color('reset');
+
+    return;
+}
+
+sub list_known_networks {
+    my $iwd = shift;
+
+    my $stringf = sprintf "%-32s %-10s %-10s %s", "Name", "Type", "Hidden",
+      "Last connected";
+    print_header( 'green', $stringf );
+
+    foreach ( $iwd->all_known_networks ) {
+        my ( $name, $type, $time, $hidden ) =
+          $_->get( 'Name', 'Type', 'LastConnectedTime', 'Hidden' );
+
+        printf "%-32s %-10s %-10s %s\n", $name, $type,
+          $hidden ? 'yes' : 'no', scalar localtime str2time($time);
+    }
+
+    return;
+}
+
+sub list_adapters {
+    my $iwd = shift;
+
+    my $stringf = sprintf "%-10s %-10s %s", 'Name', 'Powered', 'Vendor';
+    print_header( 'green', $stringf );
+
+    foreach ( $iwd->all_adapters ) {
+        my ( $name, $powered, $vendor ) =
+          $_->get( 'Name', 'Powered', 'Vendor' );
+
+        printf "%-10s %-10s %s\n", $name, $powered ? 'yes' : 'no', $vendor;
+    }
+
+    return;
+}
+
+sub list_devices {
+    my $iwd = shift;
+
+    my $stringf = sprintf "%-10s %-10s %-10s %s", 'Name', 'Powered', 'Mode',
+      'Address';
+    print_header( 'green', $stringf );
+
+    foreach ( $iwd->all_adapters ) {
+        my ( $name, $powered, $address, $mode ) =
+          $_->Device->get( 'Name', 'Powered', 'Address', 'Mode' );
+
+        printf "%-10s %-10s %-10s %s\n", $name, $powered ? 'yes' : 'no',
+          ucfirst $mode, $address;
+    }
+
+    return;
+}
+
+sub list_networks_by_device {
+    my ( $iwd, $name ) = @_;
+
+    my $stringf = sprintf "%-32s %-10s %s", 'Name', 'Type', 'Connected';
+    print_header( 'green', $stringf );
+
+    my $adapter = $iwd->find_adapter(
+        sub {
+            $name eq ( $_->Device->get('Name') );
+        }
+    );
+    my @networks;
+    @networks = $adapter->Device->all_networks if ($adapter);
+
+    foreach (@networks) {
+        my ( $nname, $connected, $type ) =
+          $_->get( 'Name', 'Connected', 'Type' );
+
+        printf "%-32s %-10s %s\n", $nname, $type, $connected ? 'yes' : 'no';
+    }
+
+    return;
+}
+
+sub print_usage {
+    pod2usage( -exitval => 255, -verbose => 0 );
+    return;
+}
+
+sub print_help {
+    pod2usage(
+        -exitval  => 0,
+        -verbose  => 99,
+        -sections => 'SYNOPSIS|OPTIONS',
+    );
+    return;
+}
+
+sub print_man {
+    pod2usage( -exitval => 0, -verbose => 2 );
+    return;
+}
+
+sub run {
+
+    my $opts;
+    GetOptions(
+        "known-networks" => \$opts->{'known-networks'},
+        "adapters"       => \$opts->{'adapters'},
+        "devices"        => \$opts->{'devices'},
+        "networks=s"     => \$opts->{'networks'},
+        "help|h"         => \$opts->{'help'},
+        "man|m"          => \$opts->{'man'},
+    ) or print_usage();
+
+    my $count = 0;
+    foreach ( values %{$opts} ) {
+        $count += 1 if ($_);
+    }
+
+    print_usage() if ( $count > 1 );
+    print_man()   if ( $opts->{'man'} );
+    print_help()  if ( $opts->{'help'} );
+
+    my $iwd = Linux::Iwd->new();
+
+    list_known_networks($iwd) if ( $opts->{'known-networks'} );
+    list_adapters($iwd)       if ( $opts->{'adapters'} );
+    list_devices($iwd)        if ( $opts->{'devices'} );
+    list_networks_by_device( $iwd, $opts->{'networks'} )
+      if ( $opts->{'networks'} );
+
+    return 0;
+}
+
+exit run();
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+iwstatus - Poor man's iwd status tool.
+
+=head1 SYNOPSIS
+
+iwstatus --known-networks | --devices | --adapters
+
+iwstatus --networks DEVICE
+
+iwstatus --help | --man
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--known-networks>
+
+Show available known networks.
+
+=item B<--devices>
+
+Show available devices.
+
+=item B<--adapters>
+
+Show available adapters.
+
+=item B<--networks> DEVICE
+
+Show available networks by device.
+
+=back
+
+=head1 DESCRIPTION
+
+iwstatus is a tool to gather status information of the iNet wireless daemon
+(iwd).
+
+For further information see L<https://iwd.wiki.kernel.org/>.
+
+=cut
