@@ -1,14 +1,18 @@
+use strict;
+use warnings;
+
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
     'ABSTRACT'   => "Poor man's iwd Perl API.",
     'AUTHOR'     => 'Tobias Schaefer <github@blackox.org>',
     'DISTNAME'   => 'Linux-Iwd',
+    'EXE_FILES'  => [ 'bin/iwstatus' ],
     'META_MERGE' => {
         resources => {
             'license'    => 'http://dev.perl.org/licenses',
             'homepage'   => 'https://github.com/tschaefer/linux-iwd',
-            'repository' => 'https://github.com/tschaefer/linux-iwd',
+            'repository' => 'https://github.com/tschaefer/linux-iwd.git',
         }
     },
     'NAME'      => 'Linux::Iwd',

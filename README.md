@@ -18,7 +18,7 @@ Best way is to use the cpanm tool.
 
     $ perl Makefile.pl
     $ make dist
-    $ VERSION=$(perl -le 'use lib "./lib"; require "./lib/Linux/Installer.pm"; print $Linux::Installer::VERSION')
+    $ VERSION=$(perl -le 'use lib "./lib"; use Linux::Iwd; print $Linux::Iwd::VERSION')
     $ cpanm Linux-Iwd-$VERSION.tar.gz
 
 ### License

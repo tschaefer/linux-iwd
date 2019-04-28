@@ -11,7 +11,7 @@ use Linux::Iwd::DBus;
 use Linux::Iwd::KnownNetwork;
 use Linux::Iwd::Adapter;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 has 'DBus' => (
     is       => 'ro',
