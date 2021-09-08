@@ -26,24 +26,6 @@ sub print_header {
     return;
 }
 
-sub list_known_networks {
-    my $iwd = shift;
-
-    my $stringf = sprintf "%-32s %-10s %-10s %s", "Name", "Type", "Hidden",
-      "Last connected";
-    print_header( 'green', $stringf );
-
-    foreach ( $iwd->all_known_networks ) {
-        my ( $name, $type, $time, $hidden ) =
-          $_->get( 'Name', 'Type', 'LastConnectedTime', 'Hidden' );
-
-        printf "%-32s %-10s %-10s %s\n", $name, $type,
-          $hidden ? 'yes' : 'no', scalar localtime str2time($time);
-    }
-
-    return;
-}
-
 sub list_adapters {
     my $iwd = shift;
 
@@ -81,7 +63,7 @@ sub list_devices {
 sub list_networks_by_device {
     my ( $iwd, $name ) = @_;
 
-    my $stringf = sprintf "%-32s %-10s %s", 'Name', 'Type', 'Connected';
+    my $stringf = sprintf "%-32s %-10s %-15s %s", 'Name', 'Type', 'Connected', 'Known';
     print_header( 'green', $stringf );
 
     my $adapter = $iwd->find_adapter(
@@ -93,10 +75,10 @@ sub list_networks_by_device {
     @networks = $adapter->Device->all_networks if ($adapter);
 
     foreach (@networks) {
-        my ( $nname, $connected, $type ) =
-          $_->get( 'Name', 'Connected', 'Type' );
+        my ( $nname, $connected, $type, $known ) =
+          $_->get( 'Name', 'Connected', 'Type', 'KnownNetwork' );
 
-        printf "%-32s %-10s %s\n", $nname, $type, $connected ? 'yes' : 'no';
+        printf "%-32s %-10s %-15s %s\n", $nname, $type, $connected ? 'yes' : 'no', $known ? 'yes' : 'no';
     }
 
     return;
@@ -125,7 +107,6 @@ sub run {
 
     my $opts;
     GetOptions(
-        "known-networks" => \$opts->{'known-networks'},
         "adapters"       => \$opts->{'adapters'},
         "devices"        => \$opts->{'devices'},
         "networks=s"     => \$opts->{'networks'},
@@ -144,7 +125,6 @@ sub run {
 
     my $iwd = Linux::Iwd->new();
 
-    list_known_networks($iwd) if ( $opts->{'known-networks'} );
     list_adapters($iwd)       if ( $opts->{'adapters'} );
     list_devices($iwd)        if ( $opts->{'devices'} );
     list_networks_by_device( $iwd, $opts->{'networks'} )
@@ -165,7 +145,7 @@ iwstatus - Poor man's iwd status tool.
 
 =head1 SYNOPSIS
 
-iwstatus --known-networks | --devices | --adapters
+iwstatus --devices | --adapters
 
 iwstatus --networks DEVICE
 
@@ -174,10 +154,6 @@ iwstatus --help | --man
 =head1 OPTIONS
 
 =over 8
-
-=item B<--known-networks>
-
-Show available known networks.
 
 =item B<--devices>
 

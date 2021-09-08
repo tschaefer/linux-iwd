@@ -25,3 +25,4 @@ nytprof.out
 
 #####=== Custom ===#####
 *.bak
+.vscode/

@@ -8,10 +8,11 @@ use Modern::Perl '2018';
 use Moose;
 
 use Linux::Iwd::DBus;
-use Linux::Iwd::KnownNetwork;
 use Linux::Iwd::Adapter;
 
 our $VERSION = '0.02';
+
+use Data::Printer;
 
 has 'DBus' => (
     is       => 'ro',
@@ -39,44 +40,10 @@ has 'Adapters' => (
     },
 );
 
-has 'KnownNetworks' => (
-    is       => 'ro',
-    isa      => 'ArrayRef[Linux::Iwd::KnownNetwork]',
-    lazy     => 1,
-    builder  => '_build_KnownNetworks',
-    init_arg => undef,
-    traits   => ['Array'],
-    handles  => {
-        count_known_networks  => 'count',
-        has_no_known_networks => 'is_empty',
-        all_known_networks    => 'elements',
-        get_known_network     => 'get',
-        find_known_network    => 'first',
-        map_known_networks    => 'map',
-        sort_known_networks   => 'sort',
-    },
-);
-
 sub _build_DBus {
     my $self = shift;
 
     return Linux::Iwd::DBus->new();
-}
-
-sub _build_KnownNetworks {
-    my $self = shift;
-
-    my $objects = $self->DBus->objects;
-
-    my @known_networks = ();
-    foreach my $path ( keys %{$objects} ) {
-        next if ( $path !~ /^\/\w+_(?:open|psk|8021x)$/x );
-
-        push @known_networks,
-          Linux::Iwd::KnownNetwork->new( DBus => $self->DBus, Path => $path );
-    }
-
-    return \@known_networks;
 }
 
 sub _build_Adapters {
@@ -86,7 +53,7 @@ sub _build_Adapters {
 
     my @adapters = ();
     foreach my $path ( keys %{$objects} ) {
-        next if ( $path !~ /^\/\d+$/x );
+        next if ( $path !~ /iwd\/\d+$/x );
 
         push @adapters,
           Linux::Iwd::Adapter->new( DBus => $self->DBus, Path => $path );
