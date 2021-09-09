@@ -17,7 +17,7 @@ my %objects = %{ $manager->GetManagedObjects };
 
 my $path;
 foreach $_ ( keys %objects ) {
-    if ( $_ =~ /^\/[0-9]+\/[0-9]+$/x ) {
+    if ( $_ =~ m{/net/connman/iwd/[0-9]+/[0-9]+$}x ) {
         $path = $_;
         last;
     }
@@ -62,7 +62,7 @@ SKIP: {
         sprintf "%s's attribute Data is a HASH", $class );
 
     is_deeply(
-        [ sort ( 'Name', 'WDS', 'Mode', 'Address', 'Powered', 'Adapter' ) ],
+        [ sort ( 'Name', 'Mode', 'Address', 'Powered', 'Adapter' ) ],
         [ sort keys %{ $obj->Data } ],
         sprintf "%s's attribute Data got all keys",
         $class

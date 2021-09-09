@@ -17,7 +17,7 @@ my %objects = %{ $manager->GetManagedObjects };
 
 my $path;
 foreach $_ ( keys %objects ) {
-    if ( $_ =~ /^\/[0-9]+\/[0-9]+\/\w+_(?:open|psk|8021x)$/x ) {
+    if ( $_ =~ m{/net/connman/iwd/[0-9]+/[0-9]+/\w+_(?:open|psk|8021x)$}x ) {
         $path = $_;
         last;
     }
@@ -67,8 +67,7 @@ SKIP: {
     is_deeply(
         [ sort ( 'Name', 'Device', 'Type', 'Connected' ) ],
         [ sort keys %{ $obj->Data } ],
-        sprintf "%s's attribute Data got all keys",
-        $class
+        sprintf "%s's attribute Data got all keys", $class
     );
 
 }

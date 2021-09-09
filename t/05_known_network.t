@@ -17,7 +17,7 @@ my %objects = %{ $manager->GetManagedObjects };
 
 my $path;
 foreach $_ ( keys %objects ) {
-    if ( $_ =~ /^\/\w+_(?:open|psk|8021x)$/x ) {
+    if ( $_ =~ m{/net/connman/iwd/\w+_(?:open|psk|8021x)$}x ) {
         $path = $_;
         last;
     }
@@ -27,8 +27,7 @@ SKIP: {
     skip( "no net.connman.iwd.KnownNetwork found.", 18 ) if ( !$path );
 
     use Linux::Iwd::DBus;
-    my $obj =
-      $class->new( DBus => Linux::Iwd::DBus->new(), Path => $path );
+    my $obj = $class->new( DBus => Linux::Iwd::DBus->new(), Path => $path );
 
     validate_attribute(
         $class => 'DBus' => (
@@ -63,7 +62,10 @@ SKIP: {
         sprintf "%s's attribute Data is a HASH", $class );
 
     is_deeply(
-        [ sort ( 'Name', 'Hidden', 'Type', 'LastConnectedTime' ) ],
+        [
+            sort ( 'AutoConnect', 'Name', 'Hidden',
+                'Type', 'LastConnectedTime' )
+        ],
         [ sort keys %{ $obj->Data } ],
         sprintf "%s's attribute Data got all keys",
         $class

@@ -1,4 +1,4 @@
-use Test::More tests => 36;
+use Test::More tests => 28;
 use Test::Moose::More;
 
 use Net::DBus;
@@ -17,7 +17,7 @@ my %objects = %{ $manager->GetManagedObjects };
 
 my $path;
 foreach $_ ( keys %objects ) {
-    if ( $_ =~ /^\/[0-9]+$/x ) {
+    if ( $_ =~ m{/net/connman/iwd/[0-9]+$}x ) {
         $path = $_;
         last;
     }
@@ -52,15 +52,15 @@ SKIP: {
     ok( ref $obj->Adapters eq 'ARRAY',
         sprintf "%s's attribute Adapters is a Array", $class );
 
-    validate_attribute(
-        $class => 'KnownNetworks' => (
-            is       => 'ro',
-            lazy     => 1,
-            builder  => '_build_KnownNetworks',
-            init_arg => undef,
-        )
-    );
-
-    ok( ref $obj->KnownNetworks eq 'ARRAY',
-        sprintf "%s's attribute KnownNetworks is a Array", $class );
+    #    validate_attribute(
+    #        $class => 'KnownNetworks' => (
+    #            is       => 'ro',
+    #            lazy     => 1,
+    #            builder  => '_build_KnownNetworks',
+    #            init_arg => undef,
+    #        )
+    #    );
+    #
+    #    ok( ref $obj->KnownNetworks eq 'ARRAY',
+    #        sprintf "%s's attribute KnownNetworks is a Array", $class );
 }

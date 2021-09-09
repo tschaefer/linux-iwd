@@ -28,7 +28,7 @@ my %objects = %{ $manager->GetManagedObjects };
 
 my $path;
 foreach $_ ( keys %objects ) {
-    if ( $_ =~ /^\/[0-9]+$/x ) {
+    if ( $_ =~ m{/net/connman/iwd/[0-9]+$}x ) {
         $path = $_;
         last;
     }
@@ -45,5 +45,5 @@ SKIP: {
     throws_ok {
         Linux::Iwd::Test->new( DBus => Linux::Iwd::DBus->new(), Path => $path )
     }
-    qr/Object \/0 is not type: 'net\.connman\.iwd\.Test'/;
+    qr/Object \/net\/connman\/iwd\/0 is not type: 'net\.connman\.iwd\.Test'/;
 }

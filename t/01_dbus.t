@@ -38,7 +38,8 @@ is( $obj->service->get_service_name,
     sprintf "%s attribute service is DBus Service 'net.connman.iwd", $class );
 
 ok(
-    exists $obj->objects->{'/'}->{'net.connman.iwd.AgentManager'},
+    exists $obj->objects->{'/net/connman/iwd'}
+      ->{'net.connman.iwd.AgentManager'},
     sprintf "%s attribute objects has interface 'net.connman.iwd.AgentManager",
     $class
 );
