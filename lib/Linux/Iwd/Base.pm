@@ -1,26 +1,35 @@
 package Linux::Iwd::Base;
 
+##! Provides a basic interface for common methods and attributes for all
+##! [Linux::Iwd](../Iwd.html) subclasses.
+
 use strict;
 use warnings;
 
-use Modern::Perl '2018';
-
 use Moose::Role;
+
+requires '_build_Service';
 
 use Throw qw(throw);
 
+### An object of class [Linux::Lwd::DBus](DBus.html) to communicate [required].
 has 'DBus' => (
     is       => 'ro',
     isa      => 'Linux::Iwd::DBus',
     required => 1,
 );
 
+### Appropriate DBus Interface name.
 has 'Service' => (
     is       => 'ro',
     isa      => 'Str',
+    lazy     => 1,
+    builder  => '_build_Service',
     init_arg => undef,
 );
 
+### Specified DBus object information.
+### The attribute is accessible via native Moose hash traits.
 has 'Data' => (
     is       => 'ro',
     isa      => 'HashRef',
@@ -38,12 +47,14 @@ has 'Data' => (
     },
 );
 
+### Path to the relevant DBus object [required].
 has 'Path' => (
     is       => 'ro',
     isa      => 'Str',
     required => 1,
 );
 
+### #[ignore(item)]
 sub BUILD {
     my $self = shift;
 
@@ -66,61 +77,3 @@ sub _build_Data {
 }
 
 1;
-
-__END__
-
-=pod
-
-=encoding utf8
-
-=head1 NAME
-
-Linux::Iwd::Base - Provides a basic interface for Iwd classes.
-
-=head1 DESCRIPTION
-
-This module provides common methods and attributes for mostly all Iwd classes.
-
-=head1 ATTRIBUTES
-
-=head2 DBus
-
-An object of class Linux::Lwd::DBus to communicate [required].
-
-=head2 Service
-
-Appropriate DBus Interface name.
-
-=head2 Path
-
-Path to the relevant DBus object [required].
-
-=head2 Data
-
-Object information.
-
-=head1 METHODS
-
-=head2 Hash trait handles
-
-The Data attribute is accessable via native Moose hash traits.
-
-    defined => 'defined',
-    exists  => 'exists',
-    get     => 'get',
-    keys    => 'keys',
-    kv      => 'kv',
-    values  => 'values',
-
-=head1 AUTHORS
-
-Tobias Schäfer L<github@blackox.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2018 by Tobias Schäfer.
-
-This is free software; you can redistribute it and/or modify it under the same
-terms as the Perl 5 programming language system itself.
-
-=cut

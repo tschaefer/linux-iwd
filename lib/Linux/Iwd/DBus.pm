@@ -1,14 +1,16 @@
 package Linux::Iwd::DBus;
 
+##! This role provides common methods and attributes to communicate with the
+##! Iwd DBus Interface.
+
 use strict;
 use warnings;
-
-use Modern::Perl '2018';
 
 use Moose;
 
 use Net::DBus;
 
+### DBus connection.
 has 'bus' => (
     is       => 'ro',
     isa      => 'Net::DBus',
@@ -17,6 +19,7 @@ has 'bus' => (
     init_arg => undef,
 );
 
+### DBus service `net.connman.iwd`.
 has 'service' => (
     is       => 'ro',
     isa      => 'Net::DBus::RemoteService',
@@ -25,6 +28,7 @@ has 'service' => (
     init_arg => undef,
 );
 
+### DBus service managed objects.
 has 'objects' => (
     is       => 'ro',
     isa      => 'HashRef',
@@ -56,50 +60,3 @@ sub _build_objects {
 __PACKAGE__->meta->make_immutable;
 
 1;
-
-__END__
-
-=pod
-
-=encoding utf8
-
-=head1 NAME
-
-Linux::Iwd::DBus - Provides Iwd DBus accesses.
-
-=head1 DESCRIPTION
-
-This module provides common methods and attributes to communicate with the Iwd
-DBus Interface.
-
-=head1 ATTRIBUTES
-
-=head2 bus
-
-DBus connection.
-
-=head2 service
-
-DBus Iwd Service connection I<net.connman.iwd>.
-
-=head2 objects
-
-All DBus Iwd objects gathered from DBus interface
-I<org.freedesktop.DBus.ObjectManager>.
-
-=head1 METHODS
-
-None.
-
-=head1 AUTHORS
-
-Tobias Schäfer L<github@blackox.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2018 by Tobias Schäfer.
-
-This is free software; you can redistribute it and/or modify it under the same
-terms as the Perl 5 programming language system itself.
-
-=cut

@@ -6,7 +6,11 @@ use warnings;
 use Moose;
 with 'Linux::Iwd::Base';
 
-has '+Service' => ( default => sub { return 'net.connman.iwd.Test' }, );
+sub _build_Service {
+    my $self = shift;
+
+    return 'net.connman.iwd.Test';
+}
 
 __PACKAGE__->meta->make_immutable;
 
@@ -37,7 +41,7 @@ foreach $_ ( keys %objects ) {
 throws_ok {
     Linux::Iwd::Test->new( DBus => Linux::Iwd::DBus->new(), Path => '/9999' )
 }
-qr/Object not found: '\/9999'/;
+qr{Object not found: '/9999'};
 
 SKIP: {
     skip( "no net.connman.iwd found.", 1 ) if ( !$path );
@@ -45,5 +49,5 @@ SKIP: {
     throws_ok {
         Linux::Iwd::Test->new( DBus => Linux::Iwd::DBus->new(), Path => $path )
     }
-    qr/Object \/net\/connman\/iwd\/0 is not type: 'net\.connman\.iwd\.Test'/;
+    qr{Object /net/connman/iwd/0 is not type: 'net\.connman\.iwd\.Test'};
 }

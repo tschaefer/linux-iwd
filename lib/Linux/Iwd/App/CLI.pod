@@ -1,0 +1,29 @@
+=head1 Linux::Iwd::App::CLI
+
+Linux::Iwd command line application. Parse, validate command line
+options and execute action.
+
+ use Linux::Iwd::App::CLI;
+ 
+ exit Linux::Iwd::App::CLI->run();
+
+=head2 Inheritance
+
+ Linux::Iwd::App::CLI
+   isa Linux::Iwd:App
+
+=head1 Modifiers
+
+=head2 C<around 'run'; #274>
+
+Run C<Linux::Iwd> command line application. Options and action
+arguments are used from command line.
+
+=cut
+
+#Pod::HTML2Pod conversion notes:
+# 523 bytes of input
+#Sun Nov 14 16:17:55 2021 tschaefer
+# No a_name switch not specified, so will not try to render <a name='...'>
+# Will try to render <a href='...'>
+# Untranslatable link: "../../Iwd.html"

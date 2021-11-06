@@ -1,4 +1,4 @@
-use Test::More tests => 39;
+use Test::More tests => 42;
 use Test::Moose::More;
 
 use Net::DBus;
@@ -16,7 +16,7 @@ my $manager = $service->get_object( '/', 'org.freedesktop.DBus.ObjectManager' );
 my %objects = %{ $manager->GetManagedObjects };
 
 my $path;
-foreach $_ ( keys %objects ) {
+foreach ( keys %objects ) {
     if ( $_ =~ m{/net/connman/iwd/[0-9]+$}x ) {
         $path = $_;
         last;
@@ -42,6 +42,8 @@ SKIP: {
     validate_attribute(
         $class => 'Service' => (
             is       => 'ro',
+            lazy     => 1,
+            builder  => '_build_Service',
             init_arg => undef,
         )
     );

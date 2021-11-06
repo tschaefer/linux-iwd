@@ -1,0 +1,33 @@
+=head1 Linux::Iwd::AdHoc
+
+This class provides ad-hoc mode information and implements role
+Linux::Iwd::Base.
+
+ use Linux::Iwd::Device;
+ use Linux::Iwd::DBus;
+ 
+ my $dbus   = Linux::Iwd::DBus->new();
+ my $device =
+   Linux::Iwd::Device->new('DBus' => $dbus, '/0/2');
+ my $adhoc = $device->Mode;
+ printf "Ad-hoc network is %s\n",
+   $ap->get('Started') ? 'started' : 'not started';
+
+The Data attribute contains following items.
+
+=over
+
+=item * ConnectedPeers
+
+=item * Started
+
+=back
+
+=cut
+
+#Pod::HTML2Pod conversion notes:
+# 549 bytes of input
+#Sun Nov 14 16:17:55 2021 tschaefer
+# No a_name switch not specified, so will not try to render <a name='...'>
+# Will try to render <a href='...'>
+# Untranslatable link: "Base.html"

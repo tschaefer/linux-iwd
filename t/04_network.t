@@ -64,6 +64,7 @@ SKIP: {
     ok( ref $obj->Data eq 'HASH',
         sprintf "%s's attribute Data is a HASH", $class );
 
+    delete $obj->Data->{'KnownNetwork'} if ($obj->Data->{'KnownNetwork'});
     is_deeply(
         [ sort ( 'Name', 'Device', 'Type', 'Connected' ) ],
         [ sort keys %{ $obj->Data } ],

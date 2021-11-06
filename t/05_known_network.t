@@ -1,9 +1,9 @@
-use Test::More tests => 47;
+use Test::More tests => 31;
 use Test::Moose::More;
 
 use Net::DBus;
 
-my $class = 'Linux::Iwd::Device';
+my $class = 'Linux::Iwd::KnownNetwork';
 
 use_ok($class);
 is_class_ok($class);
@@ -17,14 +17,14 @@ my %objects = %{ $manager->GetManagedObjects };
 
 my $path;
 foreach $_ ( keys %objects ) {
-    if ( $_ =~ m{/net/connman/iwd/[0-9]+/[0-9]+$}x ) {
+    if ( $_ =~ m{/net/connman/iwd/\w+_(?:open|psk|8021x)$}x ) {
         $path = $_;
         last;
     }
 }
 
 SKIP: {
-    skip( "no net.connman.iwd.Device found.", 34 ) if ( !$path );
+    skip( "no net.connman.iwd.KnownNetwork found.", 18 ) if ( !$path );
 
     use Linux::Iwd::DBus;
     my $obj = $class->new( DBus => Linux::Iwd::DBus->new(), Path => $path );
@@ -62,47 +62,13 @@ SKIP: {
         sprintf "%s's attribute Data is a HASH", $class );
 
     is_deeply(
-        [ sort ( 'Name', 'Mode', 'Address', 'Powered', 'Adapter' ) ],
+        [
+            sort ( 'AutoConnect', 'Name', 'Hidden',
+                'Type', 'LastConnectedTime' )
+        ],
         [ sort keys %{ $obj->Data } ],
         sprintf "%s's attribute Data got all keys",
         $class
     );
 
-    validate_attribute(
-        $class => 'Networks' => (
-            is       => 'ro',
-            lazy     => 1,
-            builder  => '_build_Networks',
-            init_arg => undef,
-        )
-    );
-
-    ok( ref $obj->Networks eq 'ARRAY',
-        sprintf "%s's attribute Networks is a ARRAY", $class );
-
-    validate_attribute(
-        $class => 'Mode' => (
-            is       => 'ro',
-            lazy     => 1,
-            builder  => '_build_Mode',
-            init_arg => undef,
-        )
-    );
-
-    my $mode;
-    if ( $obj->Data->{'Mode'} eq 'station' ) {
-        $mode = 'Linux::Iwd::Station';
-    }
-    elsif ( $obj->Data->{'Mode'} eq 'ap' ) {
-        $mode = 'Linux::Iwd::AccessPoint';
-    }
-    elsif ( $obj->Data->{'Mode'} eq 'ad-hoc' ) {
-        $mode = 'Linux::Iwd::AdHoc';
-    }
-
-    ok(
-        ref $obj->Mode eq $mode,
-        sprintf "%s's attribute Mode is a %s",
-        $class, $mode
-    );
 }

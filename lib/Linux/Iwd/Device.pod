@@ -1,0 +1,54 @@
+=head1 Linux::Iwd::Device
+
+This class provides device information and implements role
+Linux::Iwd::Base.
+
+ use Linux::Iwd::Device;
+ use Linux::Iwd::DBus;
+ 
+ my $dbus   = Linux::Iwd::DBus->new();
+ my $device = Linux::Iwd::Adapter->new('DBus' => $dbus, '/0/2');
+
+The Data attribute contains following items.
+
+=over
+
+=item * Adapter
+
+=item * Address
+
+=item * Mode
+
+=item * Name
+
+=item * Powered
+
+=item * WDS
+
+=back
+
+=head1 Attributes
+
+=head2 C<has 'Networks'; #35>
+
+List of discovered networks Linux::Iwd::Network. The list is accessable
+via native Moose array traits with lower case attribute suffix (e.g.
+C<all_known_attributes>).
+
+=head2 C<has 'Mode'; #55>
+
+Current device mode, one of Linux::Iwd::Station, Linux::Iwd::AdHoc or
+Linux::Iwd::AccessPoint.
+
+=cut
+
+#Pod::HTML2Pod conversion notes:
+# 974 bytes of input
+#Sun Nov 14 16:17:55 2021 tschaefer
+# No a_name switch not specified, so will not try to render <a name='...'>
+# Will try to render <a href='...'>
+# Untranslatable link: "Base.html"
+# Untranslatable link: "Network.html"
+# Untranslatable link: "Station.html"
+# Untranslatable link: "AdHoc.html"
+# Untranslatable link: "AccessPoint"

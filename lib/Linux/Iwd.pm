@@ -1,19 +1,24 @@
 package Linux::Iwd;
 
+##! This class provides known networks and adapters information.
+##!
+##!     use Linux::Iwd;
+##!
+##!     my $iwd = Linux::Iwd->new();
+
 use strict;
 use warnings;
-
-use Modern::Perl '2018';
 
 use Moose;
 
 use Linux::Iwd::DBus;
+use Linux::Iwd::KnownNetwork;
 use Linux::Iwd::Adapter;
 
 our $VERSION = '0.02';
 
-use Data::Printer;
-
+### #[ignore(item)]
+### `Linux::Iwd::DBus` object for quering the systemd DBus.
 has 'DBus' => (
     is       => 'ro',
     isa      => 'Linux::Iwd::DBus',
@@ -22,6 +27,10 @@ has 'DBus' => (
     init_arg => undef,
 );
 
+### List of (available, active) adapters
+### [Linux::Iwd::Adapter](Iwd/Adapter.html).
+### The list is accessible via native Moose array traits with lower case
+### attribute suffix (e.g. `all_adapters`).
 has 'Adapters' => (
     is       => 'ro',
     isa      => 'ArrayRef[Linux::Iwd::Adapter]',
@@ -40,6 +49,28 @@ has 'Adapters' => (
     },
 );
 
+### List of known (configured) networks
+### [Linux::Iwd::KnownNetwork](Iwd/KnownNetwork.html)
+### The list is accessible via native Moose array traits with lower case
+### attribute suffix (e.g. `all_known_attributes`).
+has 'KnownNetworks' => (
+    is       => 'ro',
+    isa      => 'ArrayRef[Linux::Iwd::KnownNetwork]',
+    lazy     => 1,
+    builder  => '_build_KnownNetworks',
+    init_arg => undef,
+    traits   => ['Array'],
+    handles  => {
+        count_known_networks  => 'count',
+        has_no_known_networks => 'is_empty',
+        all_known_networks    => 'elements',
+        get_known_network     => 'get',
+        find_known_network    => 'first',
+        map_known_networks    => 'map',
+        sort_known_networks   => 'sort',
+    },
+);
+
 sub _build_DBus {
     my $self = shift;
 
@@ -53,7 +84,7 @@ sub _build_Adapters {
 
     my @adapters = ();
     foreach my $path ( keys %{$objects} ) {
-        next if ( $path !~ /iwd\/\d+$/x );
+        next if ( $path !~ m{/net/connman/iwd/\d+$}x );
 
         push @adapters,
           Linux::Iwd::Adapter->new( DBus => $self->DBus, Path => $path );
@@ -62,74 +93,22 @@ sub _build_Adapters {
     return \@adapters;
 }
 
+sub _build_KnownNetworks {
+    my $self = shift;
+
+    my $objects = $self->DBus->objects;
+
+    my @known_networks = ();
+    foreach my $path ( keys %{$objects} ) {
+        next if ( $path !~ m{/net/connman/iwd/\w+_(?:open|psk|8021x)$}x );
+
+         push @known_networks,
+          Linux::Iwd::KnownNetwork->new( DBus => $self->DBus, Path => $path );
+    }
+
+    return \@known_networks;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
-
-__END__
-
-=pod
-
-=encoding utf8
-
-=head1 NAME
-
-Linux::Iwd - Known networks and adapters information.
-
-=head1 SYNOPSIS
-
-    use Linux::Iwd;
-
-    my $iwd = Linux::Iwd->new();
-
-=head1 DESCRIPTION
-
-This module provides a list of known - configured, already connected - networks
-and available, active adapters.
-
-=head1 ATTRIBUTES
-
-=head2 KnownNetworks
-
-List of Known (configured) networks (L<Linux::Iwd::KnownNetwork>).
-
-=head2 Adapters
-
-List of (avilable, active) adapters (L<Linux::Iwd::Adapter>).
-
-=head1 METHODS
-
-=head2 Array trait handles
-
-Both lists handle Moose native array traits.
-
-    Adapters
-        count_adapters  => 'count',
-        has_no_adapters => 'is_empty',
-        all_adapters    => 'elements',
-        get_adapter     => 'get',
-        find_adapter    => 'first',
-        map_adapters    => 'map',
-        sort_adapters   => 'sort',
-
-    KnownNetworks
-        count_known_networks  => 'count',
-        has_no_known_networks => 'is_empty',
-        all_known_networks    => 'elements',
-        get_known_network     => 'get',
-        find_known_network    => 'first',
-        map_known_networks    => 'map',
-        sort_known_networks   => 'sort',
-
-=head1 AUTHORS
-
-Tobias Schäfer L<github@blackox.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2018 by Tobias Schäfer.
-
-This is free software; you can redistribute it and/or modify it under the same
-terms as the Perl 5 programming language system itself.
-
-=cut
