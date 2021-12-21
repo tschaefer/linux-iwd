@@ -19,8 +19,6 @@ package Linux::Iwd::KnownNetwork;
 use strict;
 use warnings;
 
-use Modern::Perl '2018';
-
 use Moose;
 with 'Linux::Iwd::Base';
 
