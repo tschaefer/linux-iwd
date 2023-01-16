@@ -19,7 +19,7 @@ use Pod::Usage;
 use Readonly;
 use Throw qw(throw);
 
-Readonly::Array our @ACTIONS => qw(adapters devices networks known_networks);
+Readonly::Array our @ACTIONS => qw(adapters devices networks known_networks diagnostics);
 
 use Linux::Iwd;
 
@@ -161,6 +161,29 @@ sub _known_networks {
 
 }
 
+### Return diagnostic info by device.
+sub _diagnostics {
+    my ( $self, $device ) = @_;
+
+    throw( 'Missing device name', { trace => 3 } ) if ( !$device );
+
+    my $adapter = $self->controller->find_adapter(
+        sub {
+            $device eq ( $_->Device->get('Name') );
+        }
+    );
+    return {} if ( !$adapter );
+    return {} if ( $adapter->Device->Mode eq 'ad-hoc' );
+
+    my @diag;
+    while ( my ( $key, $value ) = each %{ $adapter->Device->Mode->Diagnostic->Data } ) {
+        push @diag, { Property => $key, Value => $value };
+    }
+
+    return { header  => ['Property', 'Value'], entries => \@diag };
+}
+
+
 ### Return help message as temporary filehandle.
 sub help {
     my $self = shift;
@@ -256,6 +279,8 @@ iwstatus [--no-legend] [--no-pager] adapters | devices | known-networks
 
 iwstatus [--no-legend] [--no-pager] networks DEVICE
 
+iwstatus [--no-pager] diagnostics DEVICE
+
 =head1 OPTIONS
 
 =head2 base
@@ -309,6 +334,10 @@ Show available networks by device.
 =item known-networks
 
 Show all known networks.
+
+=item diagnostics DEVICE
+
+Show diagnostics by device.
 
 =back
 

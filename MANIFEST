@@ -27,6 +27,8 @@ lib/Linux/Iwd/Network.pm
 lib/Linux/Iwd/Network.pod
 lib/Linux/Iwd/Station.pm
 lib/Linux/Iwd/Station.pod
+lib/Linux/Iwd/Station/Diagnostic.pm
+lib/Linux/Iwd/Station/Diagnostic.pod
 t/00_base.t
 t/01_dbus.t
 t/02_adapter.t

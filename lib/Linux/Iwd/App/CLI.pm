@@ -217,6 +217,24 @@ around ['_adapters', '_devices', '_networks', '_known_networks'] => sub {
     return 1;
 };
 
+around '_diagnostics' => sub {
+    my ( $orig, $self, @args ) = @_;
+
+    $self->options->{'no_legend'} = 1;
+
+    my $data = $self->$orig(@args);
+
+    my $table = Text::Table->new;
+    foreach my $entries ( @{ $data->{'entries'} } ) {
+        $table->add( sprintf "%+12s: %s", $entries->{'Property'}, $entries->{'Value'} );
+    }
+
+    my $output = $self->_prepare_output( $table, 0 );
+    $self->_print_output($output);
+
+    return 1;
+};
+
 ### #[ignore(item)]
 ### Print help.
 around 'help' => sub {

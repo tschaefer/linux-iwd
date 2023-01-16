@@ -19,23 +19,23 @@ Action arguments [optional].
 
 =head1 Methods
 
-=head2 C<sub help($self); #165>
+=head2 C<sub help($self); #187>
 
 Return help message as temporary filehandle.
 
-=head2 C<sub man($self); #184>
+=head2 C<sub man($self); #206>
 
 Return manpage as temporary filehandle.
 
-=head2 C<sub usage($self); #202>
+=head2 C<sub usage($self); #224>
 
 Return usage message as temporary filehandle.
 
-=head2 C<sub version($self); #220>
+=head2 C<sub version($self); #242>
 
 Return Linux::Iwd version string.
 
-=head2 C<sub run($self, $action, @args); #227>
+=head2 C<sub run($self, $action, @args); #249>
 
 Run C<Linux::Iwd> application.
 
@@ -43,7 +43,7 @@ Run C<Linux::Iwd> application.
 
 #Pod::HTML2Pod conversion notes:
 # 882 bytes of input
-#Sun Nov 14 16:17:55 2021 tschaefer
+#Mon Jan 16 21:04:56 2023 tschaefer
 # No a_name switch not specified, so will not try to render <a name='...'>
 # Will try to render <a href='...'>
 # Untranslatable link: "../Iwd.html"

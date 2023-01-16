@@ -2,7 +2,7 @@ _iwstatus() {
     local cur prev words cword
     _get_comp_words_by_ref cur prev words cword
 
-    local actions='adapters devices known-networks networks'
+    local actions='adapters devices known-networks networks diagnostics'
     local options='--help --man --version --no-pager --no-legend'
 
     case "$prev" in
@@ -14,7 +14,7 @@ _iwstatus() {
     local word action
     for word in "${words[@]}"; do
         case $word in
-            networks)
+            networks|diagnostics)
                 action=$word
                 break
                 ;;
@@ -22,7 +22,7 @@ _iwstatus() {
     done
 
     case $action in
-        networks)
+        networks|diagnostics)
             _available_interfaces
             return
             ;;
